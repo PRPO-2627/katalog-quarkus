@@ -8,3 +8,9 @@ modul `katalog-rest`.
 
 - Java 25 ali novejša
 - Maven 3.9 ali novejši
+
+## Gradnja
+
+```shell
+mvn clean package
+```
