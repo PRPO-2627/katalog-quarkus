@@ -1,0 +1,153 @@
+openapi: "3.0.3"
+info:
+  title: "Dogodki API"
+  description: "CRUD API za upravljanje dogodkov v katalogu."
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080/api/v1"
+
+paths:
+  /dogodki:
+    get:
+      tags:
+        - "Dogodki"
+      summary: "Pridobi vse dogodke"
+      description: "Vrne seznam vseh dogodkov v katalogu."
+      operationId: "getDogodki"
+      responses:
+        "200":
+          description: "Seznam dogodkov je bil uspešno pridobljen."
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Dogodek"
+    post:
+      tags:
+        - "Dogodki"
+      summary: "Ustvari nov dogodek"
+      description: "Doda nov dogodek v katalog."
+      operationId: "createDogodek"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Dogodek"
+      responses:
+        "201":
+          description: "Dogodek je bil uspešno ustvarjen."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dogodek"
+        "400":
+          description: "Neveljavni podatki zahtevka."
+
+  /dogodki/{id}:
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        description: "Enolični identifikator dogodka"
+        schema:
+          type: "string"
+    get:
+      tags:
+        - "Dogodki"
+      summary: "Pridobi dogodek glede na ID"
+      description: "Vrne posamezen dogodek na podlagi njegovega enoličnega identifikatorja."
+      operationId: "getDogodekById"
+      responses:
+        "200":
+          description: "Dogodek je bil uspešno najden."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dogodek"
+        "404":
+          description: "Dogodek ni bil najden."
+    put:
+      tags:
+        - "Dogodki"
+      summary: "Posodobi obstoječi dogodek"
+      description: "Posodobi podrobnosti obstoječega dogodka."
+      operationId: "updateDogodek"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Dogodek"
+      responses:
+        "200":
+          description: "Dogodek je bil uspešno posodobljen."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dogodek"
+        "400":
+          description: "Neveljavni podatki zahtevka."
+        "404":
+          description: "Dogodek ni bil najden."
+    delete:
+      tags:
+        - "Dogodki"
+      summary: "Izbriši dogodek"
+      description: "Odstrani dogodek iz kataloga glede na njegov ID."
+      operationId: "deleteDogodek"
+      responses:
+        "204":
+          description: "Dogodek je bil uspešno izbrisan (brez vsebine)."
+        "404":
+          description: "Dogodek ni bil najden."
+
+components:
+  schemas:
+    Dogodek:
+      type: "object"
+      required:
+        - "id"
+        - "ime"
+        - "cena"
+        - "datum"
+        - "lokacija"
+      properties:
+        id:
+          type: "string"
+          readOnly: true
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          description: "Enolični identifikator dogodka."
+        ime:
+          type: "string"
+          example: "Koncert skupine Siddharta"
+          description: "Ime dogodka."
+        cena:
+          type: "number"
+          format: "double"
+          example: 35.0
+          description: "Cena vstopnice za dogodek (decimalna vrednost)."
+
+        datum:
+          type: "string"
+          format: "date-time"
+          example: "2026-11-15T20:00:00+01:00"
+          description: "Datum in čas začetka dogodka."
+        lokacija:
+          $ref: "#/components/schemas/Lokacija"
+
+    Lokacija:
+      type: "object"
+      required:
+        - "ime"
+        - "naslov"
+      properties:
+        ime:
+          type: "string"
+          example: "Kino Šiška"
+          description: "Ime prizorišča dogodka."
+        naslov:
+          type: "string"
+          example: "Trg prekomorskih brigad 3, Ljubljana"
+          description: "Naslov prizorišča dogodka."
