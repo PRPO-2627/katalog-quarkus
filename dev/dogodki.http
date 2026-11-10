@@ -1,0 +1,19 @@
+### Izdelaj dogodek
+POST http://localhost:8080/api/v1/dogodki
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "ignored",
+  "ime": "Koncert v Kinu Šiška",
+  "cena": 25.5,
+  "datum": "2026-12-01T20:00:00+01:00",
+  "lokacija": {
+    "ime": "Kino Šiška",
+    "naslov": "Trg prekomorskih brigad 3, Ljubljana"
+  }
+}
+
+### Pridobi vse dogodke
+GET http://localhost:8080/api/v1/dogodki
+Accept: application/json
