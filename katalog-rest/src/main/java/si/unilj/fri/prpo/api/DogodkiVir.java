@@ -1,12 +1,9 @@
 package si.unilj.fri.prpo.api;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.NotFoundException;
@@ -14,51 +11,49 @@ import si.unilj.fri.prpo.api.model.Dogodek;
 
 @ApplicationScoped
 public class DogodkiVir implements DogodkiApi {
-    private final Map<String, Dogodek> dogodki = new ConcurrentHashMap<>();
+
+    @Inject
+    DogodkiStoritev dogodkiStoritev;
 
     @Override
     public Dogodek createDogodek(@Valid @NotNull Dogodek dogodek) {
         System.out.println("Poklicana je bila metoda za dodajanje dogodka!");
-        dogodek.setId(UUID.randomUUID().toString());
-        dogodki.put(dogodek.getId(), dogodek);
-        return dogodek;
+        return dogodkiStoritev.ustvariDogodek(dogodek);
     }
 
     @Override
     public void deleteDogodek(String id) {
         System.out.println("Poklicana je bila metoda za odstranitev dogodka!");
-        if (dogodki.remove(id) == null) {
-            throw new NotFoundException("Dogodek ni bil najden.");
+        try {
+            dogodkiStoritev.odstraniDogodek(id);
+        } catch (DogodekNiNajdenException e) {
+            throw new NotFoundException(e.getMessage());
         }
     }
 
     @Override
     public Dogodek getDogodekById(String id) {
         System.out.println("Poklicana je bila metoda za pridobitev dogodka po ID!");
-        Dogodek dogodek = dogodki.get(id);
-        if (dogodek == null) {
-            throw new NotFoundException("Dogodek ni bil najden.");
+        try {
+            return dogodkiStoritev.pridobiDogodek(id);
+        } catch (DogodekNiNajdenException e) {
+            throw new NotFoundException(e.getMessage());
         }
-        return dogodek;
     }
 
     @Override
     public List<Dogodek> getDogodki() {
         System.out.println("Poklicana je bila metoda za pridobitev dogodka!");
-        return new ArrayList<>(dogodki.values());
+        return dogodkiStoritev.pridobiDogodke();
     }
 
     @Override
     public Dogodek updateDogodek(String id, @Valid @NotNull Dogodek dogodek) {
         System.out.println("Poklicana je bila metoda za posodobitev dogodka po ID!");
-
-        if (!dogodki.containsKey(id)) {
-            throw new NotFoundException("Dogodek ni bil najden.");
+        try {
+            return dogodkiStoritev.posodobiDogodek(id, dogodek);
+        } catch (DogodekNiNajdenException e) {
+            throw new NotFoundException(e.getMessage());
         }
-        dogodek.setId(id);
-        dogodki.put(id, dogodek);
-        return dogodek;
     }
 }
-
-
