@@ -1,64 +1,68 @@
 package si.unilj.fri.prpo.api;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.NotFoundException;
 import si.unilj.fri.prpo.api.model.Dogodek;
+import si.unilj.fri.prpo.api.model.Lokacija;
+import si.unilj.fri.prpo.cdi.DogodekStoritev;
 
 @ApplicationScoped
 public class DogodkiVir implements DogodkiApi {
-    private final Map<String, Dogodek> dogodki = new ConcurrentHashMap<>();
+
+    private final DogodekStoritev storitev;
+
+    @Inject
+    DogodkiVir(DogodekStoritev storitev) {
+        this.storitev = storitev;
+    }
 
     @Override
     public Dogodek createDogodek(@Valid @NotNull Dogodek dogodek) {
         System.out.println("Poklicana je bila metoda za dodajanje dogodka!");
-        dogodek.setId(UUID.randomUUID().toString());
-        dogodki.put(dogodek.getId(), dogodek);
-        return dogodek;
+        return vDto(storitev.ustvariDogodek(vDomeno(dogodek)));
     }
 
     @Override
     public void deleteDogodek(String id) {
         System.out.println("Poklicana je bila metoda za odstranitev dogodka!");
-        if (dogodki.remove(id) == null) {
-            throw new NotFoundException("Dogodek ni bil najden.");
-        }
+        storitev.odstraniDogodek(id);
     }
 
     @Override
     public Dogodek getDogodekById(String id) {
         System.out.println("Poklicana je bila metoda za pridobitev dogodka po ID!");
-        Dogodek dogodek = dogodki.get(id);
-        if (dogodek == null) {
-            throw new NotFoundException("Dogodek ni bil najden.");
-        }
-        return dogodek;
+        return vDto(storitev.pridobiDogodek(id));
     }
 
     @Override
     public List<Dogodek> getDogodki() {
         System.out.println("Poklicana je bila metoda za pridobitev dogodka!");
-        return new ArrayList<>(dogodki.values());
+        return storitev.pridobiDogodke().stream().map(DogodkiVir::vDto).toList();
     }
 
     @Override
     public Dogodek updateDogodek(String id, @Valid @NotNull Dogodek dogodek) {
         System.out.println("Poklicana je bila metoda za posodobitev dogodka po ID!");
+        return vDto(storitev.posodobiDogodek(id, vDomeno(dogodek)));
+    }
 
-        if (!dogodki.containsKey(id)) {
-            throw new NotFoundException("Dogodek ni bil najden.");
-        }
-        dogodek.setId(id);
-        dogodki.put(id, dogodek);
-        return dogodek;
+    private static si.unilj.fri.prpo.cdi.model.Dogodek vDomeno(Dogodek dogodek) {
+        Lokacija lokacija = dogodek.getLokacija();
+        return new si.unilj.fri.prpo.cdi.model.Dogodek(
+                dogodek.getId(), dogodek.getIme(), dogodek.getCena(), dogodek.getDatum(),
+                new si.unilj.fri.prpo.cdi.model.Lokacija(lokacija.getIme(), lokacija.getNaslov()));
+    }
+
+    private static Dogodek vDto(si.unilj.fri.prpo.cdi.model.Dogodek dogodek) {
+        return new Dogodek()
+                .id(dogodek.id())
+                .ime(dogodek.ime())
+                .cena(dogodek.cena())
+                .datum(dogodek.datum())
+                .lokacija(new Lokacija().ime(dogodek.lokacija().ime()).naslov(dogodek.lokacija().naslov()));
     }
 }
-
-

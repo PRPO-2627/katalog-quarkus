@@ -1,8 +1,8 @@
 # Katalog – Quarkus
 
 Minimalen večmodulni projekt Maven, ki prikazuje REST API, izdelan z ogrodjem
-Quarkus. Korenski projekt je pripravljen za dodatne module; trenutno vsebuje
-modul `katalog-rest`.
+Quarkus. Modul `katalog-rest` vsebuje REST vmesnik, modul `katalog-cdi` pa
+CDI storitev za upravljanje dogodkov v pomnilniku.
 
 ## Zahteve
 
@@ -18,7 +18,7 @@ mvn clean package
 ## Zagon
 
 ```shell
-mvn -pl katalog-rest quarkus:dev
+mvn -pl katalog-rest -am compile io.quarkus:quarkus-maven-plugin:3.40.1.1:dev
 ```
 
 Aplikacija posluša na naslovu `http://localhost:8080`. Preglej končne točke na `http://localhost:8080/api/v1/q/swagger-ui/`
