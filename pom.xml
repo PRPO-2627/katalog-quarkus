@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>katalog-cdi</module>
         <module>katalog-rest</module>
     </modules>
 
@@ -28,6 +29,12 @@
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>si.unilj.fri.prpo</groupId>
+                <artifactId>katalog-cdi</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
